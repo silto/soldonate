@@ -1,6 +1,7 @@
 "use client";
 import { DefaultCopyField } from "@/components/ui/CopyField";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -30,31 +31,71 @@ const Home = () => {
   const [fee, setFee] = useState<string>("0.1");
   const [feeEnabled, setFeeEnabled] = useState<boolean>(true);
   const [redirect, setRedirect] = useState<string>("");
+  const [error, setError] = useState<null | { field: string; message: string }>(
+    null
+  );
 
-  const actionUrl = useMemo(() => {
-    return `${process.env
-      .NEXT_PUBLIC_API_URL!}/actions/donate?${new URLSearchParams({
-      to,
-      amount1: amount1Enabled ? amount1 : "",
-      amount2: amount2Enabled ? amount1 : "",
-      amount3: amount3Enabled ? amount1 : "",
-      freeAmountEnabled: freeAmountEnabled ? "1" : "0",
-      fee: feeEnabled ? fee : "0",
-      redirect: redirect ? encodeURIComponent(redirect) : "",
-    }).toString()}`;
-  }, [
-    to,
-    amount1,
-    amount2,
-    amount3,
-    amount1Enabled,
-    amount2Enabled,
-    amount3Enabled,
-    freeAmountEnabled,
-    fee,
-    feeEnabled,
-    redirect,
-  ]);
+  const actionUrl = global?.window?.location
+    ? `${
+        location.protocol + "//" + location.host
+      }/api/actions/donate?${new URLSearchParams({
+        to,
+        amount1: amount1Enabled ? amount1 : "",
+        amount2: amount2Enabled ? amount2 : "",
+        amount3: amount3Enabled ? amount3 : "",
+        freeAmountEnabled: freeAmountEnabled ? "1" : "0",
+        fee: feeEnabled ? fee : "0",
+        redirect: redirect ? encodeURIComponent(redirect) : "",
+      }).toString()}`
+    : "";
+
+  const validateAndOpenModal = () => {
+    if (amount1Enabled && !amount1) {
+      setError({
+        field: "amount1",
+        message: "Amount can't be 0 if enabled",
+      });
+      return;
+    }
+    if (amount2Enabled && !amount2) {
+      setError({
+        field: "amount2",
+        message: "Amount can't be 0 if enabled",
+      });
+      return;
+    }
+    if (amount3Enabled && !amount3) {
+      setError({
+        field: "amount3",
+        message: "Amount can't be 0 if enabled",
+      });
+      return;
+    }
+    if (amount2Enabled && amount1 === amount2) {
+      setError({
+        field: "amount2",
+        message: "Amounts can't be equal",
+      });
+      return;
+    }
+    if (amount3Enabled && (amount1 === amount3 || amount2 === amount3)) {
+      setError({
+        field: "amount3",
+        message: "Amounts can't be equal",
+      });
+      return;
+    }
+    if (fee && parseFloat(fee) > 1) {
+      setError({
+        field: "fee",
+        message:
+          "Don't set a fee > 1%. That's very nice of you, but your donators would probably not like it.",
+      });
+      return;
+    }
+    setError(null);
+    setOpenModal(true);
+  };
 
   return (
     <Box
@@ -112,6 +153,7 @@ const Home = () => {
                 variant="outlined"
                 inputProps={{ inputMode: "numeric" }}
                 value={amount1}
+                error={error?.field === "amount1"}
                 disabled={!amount1Enabled}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   const re = /^[0-9]*\.?[0-9]*$/;
@@ -122,9 +164,13 @@ const Home = () => {
               />
               <Switch
                 checked={amount1Enabled}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setAmount1Enabled(e.target.checked)
-                }
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setAmount1Enabled(e.target.checked);
+                  if (!e.target.checked) {
+                    setAmount2Enabled(false);
+                    setAmount3Enabled(false);
+                  }
+                }}
               />
             </Box>
             <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
@@ -135,6 +181,7 @@ const Home = () => {
                 variant="outlined"
                 inputProps={{ inputMode: "numeric" }}
                 value={amount2}
+                error={error?.field === "amount2"}
                 disabled={!amount2Enabled}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   const re = /^[0-9]*\.?[0-9]*$/;
@@ -145,9 +192,14 @@ const Home = () => {
               />
               <Switch
                 checked={amount2Enabled}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setAmount2Enabled(e.target.checked)
-                }
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setAmount2Enabled(e.target.checked);
+                  if (e.target.checked) {
+                    setAmount1Enabled(true);
+                  } else {
+                    setAmount3Enabled(false);
+                  }
+                }}
               />
             </Box>
             <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
@@ -158,6 +210,7 @@ const Home = () => {
                 variant="outlined"
                 inputProps={{ inputMode: "numeric" }}
                 value={amount3}
+                error={error?.field === "amount3"}
                 disabled={!amount3Enabled}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   const re = /^[0-9]*\.?[0-9]*$/;
@@ -168,9 +221,13 @@ const Home = () => {
               />
               <Switch
                 checked={amount3Enabled}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setAmount3Enabled(e.target.checked)
-                }
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setAmount3Enabled(e.target.checked);
+                  if (e.target.checked) {
+                    setAmount1Enabled(true);
+                    setAmount2Enabled(true);
+                  }
+                }}
               />
             </Box>
             <Box>
@@ -201,6 +258,7 @@ const Home = () => {
                 }}
                 value={fee}
                 disabled={!feeEnabled}
+                error={error?.field === "fee"}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   const re = /^[0-9]*\.?[0-9]*$/;
                   if (e.target.value === "" || re.test(e.target.value)) {
@@ -228,12 +286,17 @@ const Home = () => {
               }
             />
             <Divider />
+            {error ? (
+              <Alert variant="standard" color="error">
+                {error.message}
+              </Alert>
+            ) : null}
             <Button
               fullWidth
               type="button"
               variant="contained"
               size="large"
-              onClick={() => setOpenModal(true)}
+              onClick={() => validateAndOpenModal()}
             >
               {"Create Blink"}
             </Button>
