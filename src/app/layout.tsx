@@ -3,6 +3,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/theme";
 import { CssBaseline } from "@mui/material";
+import AppWalletProvider from "@/components/AppWalletProvider";
 
 export const metadata: Metadata = {
   title: "SolDonate",
@@ -18,8 +19,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AppRouterCacheProvider>
-          <CssBaseline />
-          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          <AppWalletProvider>
+            <CssBaseline />
+            <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          </AppWalletProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

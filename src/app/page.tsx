@@ -13,14 +13,11 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
-import { ChangeEvent, useMemo, useState } from "react";
-// import Image from "next/image";
+import { ChangeEvent, useState } from "react";
 
 const Home = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [to, setTo] = useState<string>(
-    "G9xk78Sc5Q8Hxr8pGgNri1puYeJFnznqKhHPdqQfKddf"
-  );
+  const [to, setTo] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_TO!);
   const [amount1, setAmount1] = useState<string>("0.1");
   const [amount2, setAmount2] = useState<string>("1");
   const [amount3, setAmount3] = useState<string>("10");
@@ -35,21 +32,28 @@ const Home = () => {
     null
   );
 
-  const actionUrl = global?.window?.location
-    ? `${
-        location.protocol + "//" + location.host
-      }/api/actions/donate?${new URLSearchParams({
-        to,
-        amount1: amount1Enabled ? amount1 : "",
-        amount2: amount2Enabled ? amount2 : "",
-        amount3: amount3Enabled ? amount3 : "",
-        freeAmountEnabled: freeAmountEnabled ? "1" : "0",
-        fee: feeEnabled ? fee : "0",
-        redirect: redirect ? encodeURIComponent(redirect) : "",
-      }).toString()}`
-    : "";
+  const actionParams = new URLSearchParams({
+    to,
+    amount1: amount1Enabled ? amount1 : "",
+    amount2: amount2Enabled ? amount2 : "",
+    amount3: amount3Enabled ? amount3 : "",
+    freeAmountEnabled: freeAmountEnabled ? "1" : "0",
+    fee: feeEnabled ? fee : "0",
+    redirect: redirect ? encodeURIComponent(redirect) : "",
+  }).toString();
+
+  const actionUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/actions/donate?${actionParams}`;
+
+  const blinkUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/donate?${actionParams}`;
 
   const validateAndOpenModal = () => {
+    if (to === process.env.NEXT_PUBLIC_DEFAULT_TO) {
+      setError({
+        field: "to",
+        message: "Set your own address to receive donations",
+      });
+      return;
+    }
     if (amount1Enabled && !amount1) {
       setError({
         field: "amount1",
@@ -141,6 +145,7 @@ const Home = () => {
               variant="outlined"
               type="text"
               value={to}
+              error={error?.field === "to"}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setTo(e.target.value)
               }
@@ -320,6 +325,14 @@ const Home = () => {
           }}
         >
           <Stack spacing={2}>
+            <DefaultCopyField
+              fullWidth
+              id="redirect"
+              label={"Blink URL"}
+              variant="outlined"
+              type="text"
+              value={blinkUrl}
+            />
             <DefaultCopyField
               fullWidth
               id="redirect"
