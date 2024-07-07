@@ -13,6 +13,8 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
+import Image from "next/image";
+import logo from "../../public/logo.svg";
 import { ChangeEvent, useState } from "react";
 
 const Home = () => {
@@ -105,6 +107,7 @@ const Home = () => {
     <Box
       sx={{
         display: "flex",
+        flexDirection: "column",
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
@@ -112,6 +115,18 @@ const Home = () => {
         bgcolor: "background.paper",
       }}
     >
+      <Box
+        sx={{
+          width: { xs: "45px", md: "60px" },
+          height: { xs: "45px", md: "60px" },
+          position: { xs: "relative", md: "absolute" },
+          left: { xs: "unset", md: "20px" },
+          marginTop: "20px",
+          top: { xs: "unset", md: "0px" },
+        }}
+      >
+        <Image src={logo} alt="Soldonate" priority fill />
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -122,10 +137,7 @@ const Home = () => {
             xs: "100%",
             sm: "516px",
           },
-          margin: {
-            xs: 2,
-            sm: 0,
-          },
+          margin: 2,
         }}
       >
         <Card

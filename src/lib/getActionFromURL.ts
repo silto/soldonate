@@ -24,6 +24,8 @@ const getActionFromSearchParams = async (
       "/solana_devs.jpg",
       process.env.NEXT_PUBLIC_BASE_URL
     ).toString();
+    let title = "Donate SOL";
+    let description = "Make a donation";
     if (redirect) {
       try {
         const response = await fetch(redirect, { next: { revalidate: 3600 } });
@@ -31,10 +33,18 @@ const getActionFromSearchParams = async (
         const $ = cheerio.load(html);
         const twitterImage = $('meta[name="twitter:image"]').attr("content");
         const ogImage = $('meta[property="og:image"]').attr("content");
+        const pageTitle = $("title").contents().first().text();
+        const pageDescription = $('meta[name="description"]').attr("content");
         if (twitterImage) {
           iconUrl = twitterImage;
         } else if (ogImage) {
           iconUrl = ogImage;
+        }
+        if (pageTitle) {
+          title = pageTitle;
+        }
+        if (pageDescription) {
+          description = pageDescription;
         }
       } catch (error) {
         console.log(error);
@@ -49,9 +59,9 @@ const getActionFromSearchParams = async (
     ).toString();
 
     const payload: ActionGetResponse = {
-      title: "Donate SOL",
+      title,
       icon: iconUrl,
-      description: "Make a donation",
+      description,
       label: "Transfer", // this value will be ignored since `links.actions` exists
       links: {
         actions: [
@@ -82,7 +92,7 @@ const getActionFromSearchParams = async (
           ...(freeAmountEnabled
             ? [
                 {
-                  label: "Donate SOL", // button text
+                  label: "Donate", // button text
                   href: `${baseHref}&amount={amount}`, // this href will have a text input
                   parameters: [
                     {

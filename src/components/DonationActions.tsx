@@ -113,7 +113,14 @@ const DonationActions = ({ actions }: { actions: LinkedAction[] }) => {
       {actionsList.map((actionItem, i) => {
         if (actionItem.parameters) {
           return (
-            <Box key={i}>
+            <Box
+              key={i}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: 2,
+              }}
+            >
               <TextField
                 fullWidth
                 id="freeAmount"
@@ -128,6 +135,20 @@ const DonationActions = ({ actions }: { actions: LinkedAction[] }) => {
                   if (e.target.value === "" || re.test(e.target.value)) {
                     setFreeAmount(e.target.value);
                   }
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <Button
+                      key={i}
+                      type="button"
+                      variant="contained"
+                      disabled={!freeAmount}
+                      // size="large"
+                      onClick={() => runAction(actionItem)}
+                    >
+                      {actionItem.label}
+                    </Button>
+                  ),
                 }}
               />
             </Box>

@@ -84,29 +84,49 @@ const DonatePage = async ({
             </Alert>
           ) : (
             <Stack spacing={2}>
-              <Box
-                sx={{
-                  borderRadius: 2,
-                  position: "relative",
-                  height: "300px",
-                  overflow: "hidden",
-                }}
-              >
-                <Image
-                  src={action.icon}
-                  alt="Go to the website"
-                  fill={true}
-                  style={{ objectFit: "contain" }}
-                  // blurDataURL="data:..." automatically provided
-                  // placeholder="blur" // Optional blur-up while loading
-                />
-              </Box>
               {searchParams.redirect ? (
-                <Link href={decodeURIComponent(searchParams.redirect)}>
-                  {decodeURIComponent(searchParams.redirect)}
-                </Link>
-              ) : null}
-              <Typography variant="h4">{action.title}</Typography>
+                <>
+                  <Link href={decodeURIComponent(searchParams.redirect)}>
+                    <Box
+                      sx={{
+                        borderRadius: 2,
+                        position: "relative",
+                        height: "300px",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Image
+                        src={action.icon}
+                        alt="Go to the website"
+                        fill={true}
+                        style={{ objectFit: "contain" }}
+                      />
+                    </Box>
+                  </Link>
+                  <Link href={decodeURIComponent(searchParams.redirect)}>
+                    {decodeURIComponent(searchParams.redirect)}
+                  </Link>
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    borderRadius: 2,
+                    position: "relative",
+                    height: "300px",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Image
+                    src={action.icon}
+                    alt="Go to the website"
+                    fill={true}
+                    style={{ objectFit: "contain" }}
+                  />
+                </Box>
+              )}
+              <Typography variant="h5">{action.title}</Typography>
               <Typography>{action.description}</Typography>
               <Divider />
               {action?.links?.actions ? (
