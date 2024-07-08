@@ -38,7 +38,7 @@ export const POST = async (req: Request) => {
 
     const res = await connection.getSignatureStatus(body.signature);
     if (!res.value) {
-      throw "Unable to contact RPC";
+      throw "Transaction not found";
     }
 
     return Response.json(res.value, {

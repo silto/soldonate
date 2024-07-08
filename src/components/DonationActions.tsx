@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Box, Button, Snackbar, Stack, TextField } from "@mui/material";
 import { ActionPostResponse, LinkedAction } from "@solana/actions";
 import {
   WalletSendTransactionError,
@@ -8,21 +8,61 @@ import {
 } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { Transaction } from "@solana/web3.js";
-import { ChangeEvent, useState } from "react";
+import { SignatureStatus, Transaction } from "@solana/web3.js";
+import { ChangeEvent, useEffect, useState } from "react";
+import { SnackbarProvider, useSnackbar } from "notistack";
 
 const DonationActions = ({ actions }: { actions: LinkedAction[] }) => {
   const [freeAmount, setFreeAmount] = useState<string>("");
-  const [error, setError] = useState<null | string>(null);
+  const [signatureWaitingConfirmation, setSignatureWaitingConfirmation] =
+    useState<string | null>(null);
   const { publicKey, signTransaction, sendTransaction, wallet } = useWallet();
   const { connection } = useConnection();
   const { setVisible: setWalletModalVisible } = useWalletModal();
+  const { enqueueSnackbar } = useSnackbar();
   const groupingFirstButtons =
     actions[0] &&
     !actions[0].parameters &&
     actions[1] &&
     !actions[1].parameters;
   const actionsList = groupingFirstButtons ? actions.slice(2) : actions;
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (signatureWaitingConfirmation) {
+      intervalId = setInterval(() => {
+        fetch("/api/rpc/getTxStatus", {
+          method: "POST",
+          body: JSON.stringify({
+            signature: signatureWaitingConfirmation,
+          }),
+        })
+          .then((res) => res.json())
+          .then((signatureStatus) => {
+            if ((signatureStatus as SignatureStatus).err) {
+              enqueueSnackbar("The transaction failed", { variant: "error" });
+              setSignatureWaitingConfirmation(null);
+              clearInterval(intervalId);
+            } else if (
+              (signatureStatus as SignatureStatus).confirmationStatus ===
+                "confirmed" ||
+              (signatureStatus as SignatureStatus).confirmationStatus ===
+                "finalized"
+            ) {
+              enqueueSnackbar("Transaction successful !", {
+                variant: "success",
+              });
+              setSignatureWaitingConfirmation(null);
+              clearInterval(intervalId);
+            }
+          })
+          .catch(() => {
+            enqueueSnackbar("An unknown error occured", { variant: "error" });
+          });
+      }, 2000);
+    }
+    return () => intervalId && clearInterval(intervalId);
+  }, [signatureWaitingConfirmation]);
 
   const callActionURL = async (url: string) => {
     if (!publicKey) {
@@ -39,45 +79,42 @@ const DonationActions = ({ actions }: { actions: LinkedAction[] }) => {
 
       if (res.status !== 200) {
         const error: { message: string } = await res.json();
-        setError(error?.message ?? "An unknown error occurred");
+        enqueueSnackbar(error?.message ?? "An unknown error occurred", {
+          variant: "error",
+        });
         return;
       }
       const payload: ActionPostResponse = await res.json();
       const tx = Transaction.from(Buffer.from(payload.transaction, "base64"));
       console.log(tx);
       const signature = await sendTransaction(tx, connection);
-      // TODO
-      // open snackbar to signal tx submitted
-      // fetch /api/rpc/getTxStatus with {signature} body
-      // until we either get an error or a confirmation
-      // type SignatureStatus = {
-      //     /** when the transaction was processed */
-      //     slot: number;
-      //     /** the number of blocks that have been confirmed and voted on in the fork containing `slot` */
-      //     confirmations: number | null;
-      //     /** transaction error, if any */
-      //     err: TransactionError | null;
-      //     /** cluster confirmation status, if data available. Possible responses: `processed`, `confirmed`, `finalized` */
-      //     confirmationStatus?: TransactionConfirmationStatus;
-      // };
-      // then display snackbar for failure or success
+      setSignatureWaitingConfirmation(signature);
+      enqueueSnackbar("Transaction submitted !", {
+        variant: "info",
+      });
     } catch (error) {
       console.log(error);
       if (
         error instanceof WalletSignTransactionError ||
         error instanceof WalletSendTransactionError
       ) {
-        setError(error.message);
+        enqueueSnackbar(error.message, {
+          variant: "error",
+        });
+        return;
       }
-      setError("An unknown error occurred");
+      enqueueSnackbar("An unknown error occurred", {
+        variant: "error",
+      });
     }
   };
 
   const runAction = (action: LinkedAction) => {
-    setError(null);
     if (action.parameters) {
       if (!freeAmount || freeAmount === "0") {
-        setError("Please set an amount to donate");
+        enqueueSnackbar("Please set an amount to donate", {
+          variant: "warning",
+        });
         return;
       }
       callActionURL(action.href.replace("{amount}", freeAmount));
@@ -171,4 +208,12 @@ const DonationActions = ({ actions }: { actions: LinkedAction[] }) => {
   );
 };
 
-export default DonationActions;
+const DonationActionsWithSnack = ({ actions }: { actions: LinkedAction[] }) => {
+  return (
+    <SnackbarProvider maxSnack={3}>
+      <DonationActions actions={actions} />
+    </SnackbarProvider>
+  );
+};
+
+export default DonationActionsWithSnack;
