@@ -132,12 +132,28 @@ const DonatePage = async ({
                         cursor: "pointer",
                       }}
                     >
-                      <Image
-                        src={action.icon}
-                        alt="Go to the website"
-                        fill={true}
-                        style={{ objectFit: "contain" }}
-                      />
+                      {action.icon ===
+                      new URL(
+                        "/social_image.png",
+                        process.env.NEXT_PUBLIC_BASE_URL
+                      ).toString() ? (
+                        <Image
+                          src={"/social_image.png"}
+                          alt="Go to the website"
+                          fill={true}
+                          style={{ objectFit: "contain" }}
+                        />
+                      ) : (
+                        <img
+                          src={action.icon}
+                          alt="Go to the website"
+                          style={{
+                            objectFit: "contain",
+                            width: "100%",
+                            height: "100%",
+                          }}
+                        />
+                      )}
                     </Box>
                   </Link>
                   <Link href={decodeURIComponent(searchParams.redirect)}>
@@ -155,7 +171,7 @@ const DonatePage = async ({
                   }}
                 >
                   <Image
-                    src={action.icon}
+                    src={"/social_image.png"}
                     alt="Go to the website"
                     fill={true}
                     style={{ objectFit: "contain" }}

@@ -33,7 +33,7 @@ const getInfosFromSearchParams = async (
     console.log("VALIDATED");
 
     let iconUrl = new URL(
-      "/solana_devs.jpg",
+      "/social_image.png",
       process.env.NEXT_PUBLIC_BASE_URL
     ).toString();
     let title = "Donate SOL";
