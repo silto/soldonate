@@ -39,6 +39,28 @@ export const metadata: Metadata = {
     },
   ],
   manifest: "/site.webmanifest",
+  openGraph: {
+    title: "SolDonate",
+    description: "Solana donations made easy",
+    url: "https://soldonate.me",
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/social_image.png`,
+        width: 1200,
+        height: 600,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SolDonate",
+    description: "Solana donations made easy",
+    site: "@SolDonateMe",
+    creator: "@_silto_",
+    images: [`${process.env.NEXT_PUBLIC_BASE_URL}/twitter_image.png`],
+  },
   other: {
     "msapplication-TileColor": "#000000",
     "theme-color": "#000000",

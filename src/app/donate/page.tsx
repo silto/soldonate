@@ -1,5 +1,4 @@
 import Image from "next/image";
-import getActionFromURL from "@/lib/getActionFromURL";
 import {
   Alert,
   Box,
@@ -11,14 +10,51 @@ import {
 } from "@mui/material";
 import DonationActions from "@/components/DonationActions";
 import WalletButton from "@/components/WalletButton";
+import { Metadata, ResolvingMetadata } from "next";
+import getInfosFromURL from "@/lib/getInfosFromURL";
+import { cache } from "react";
 export const runtime = "edge";
+
+const cachedGetInfosFromURL = cache(getInfosFromURL);
+
+export async function generateMetadata(
+  {
+    searchParams,
+  }: {
+    searchParams: Record<string, string | undefined>;
+  },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  console.log("GENERATE METADATA");
+  console.log(searchParams);
+
+  const { metadata } = await cachedGetInfosFromURL(
+    new URLSearchParams({
+      to: searchParams.to || "",
+      amount1: searchParams.amount1 || "",
+      amount2: searchParams.amount2 || "",
+      amount3: searchParams.amount3 || "",
+      freeAmountEnabled: searchParams.freeAmountEnabled || "",
+      fee: searchParams.fee || "",
+      redirect: searchParams.redirect
+        ? decodeURIComponent(searchParams.redirect)
+        : "",
+    })
+  );
+  console.log(metadata);
+
+  return metadata;
+}
 
 const DonatePage = async ({
   searchParams,
 }: {
   searchParams: Record<string, string | undefined>;
 }) => {
-  const { payload: action, error } = await getActionFromURL(
+  console.log("SEARCH PARAMS");
+  console.log(searchParams);
+
+  const { payload: action, error } = await cachedGetInfosFromURL(
     new URLSearchParams({
       to: searchParams.to || "",
       amount1: searchParams.amount1 || "",

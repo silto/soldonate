@@ -15,11 +15,11 @@ import { Decimal } from "decimal.js";
 import { getRequestContext } from "@cloudflare/next-on-pages";
 
 import validatePostParams from "@/lib/validatePostParams";
-import getActionFromURL from "@/lib/getActionFromURL";
+import getInfosFromURL from "@/lib/getInfosFromURL";
 export const runtime = "edge";
 
 export const GET = async (req: Request) => {
-  const { payload, error } = await getActionFromURL(
+  const { payload, error } = await getInfosFromURL(
     new URL(req.url).searchParams
   );
   if (payload) {
