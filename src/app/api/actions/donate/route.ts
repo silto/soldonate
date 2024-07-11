@@ -81,12 +81,21 @@ export const POST = async (req: Request) => {
 
     const transaction = new Transaction();
     transaction.feePayer = account;
-
+    let feeAmount = new Decimal(0);
+    if (fee) {
+      feeAmount = new Decimal(amount)
+        .mul(new Decimal(fee))
+        .mul(new Decimal(0.01))
+        .mul(new Decimal(LAMPORTS_PER_SOL));
+    }
     transaction.add(
       SystemProgram.transfer({
         fromPubkey: account,
         toPubkey: toPubkey,
-        lamports: new Decimal(amount).mul(LAMPORTS_PER_SOL).toNumber(),
+        lamports: new Decimal(amount)
+          .mul(LAMPORTS_PER_SOL)
+          .sub(feeAmount)
+          .toNumber(),
       })
     );
     if (fee) {
@@ -94,11 +103,7 @@ export const POST = async (req: Request) => {
         SystemProgram.transfer({
           fromPubkey: account,
           toPubkey: new PublicKey(env.FEE_ADDRESS!),
-          lamports: new Decimal(amount)
-            .mul(new Decimal(fee))
-            .mul(new Decimal(0.01))
-            .mul(new Decimal(LAMPORTS_PER_SOL))
-            .toNumber(),
+          lamports: feeAmount.toNumber(),
         })
       );
     }
