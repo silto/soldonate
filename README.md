@@ -1,3 +1,42 @@
+# SolDonate
+
+This project aims to provide a simple tool to wrap any link into a Blink to accept donations.
+
+This way, any user with limited coding/developing experience can share blinks that redirect to their content.
+The blink will use the redirect URL to generate its metadata so social medias display it as the destination site.
+
+## How it works
+
+There are 2 pages to this project :
+
+- The root (/) page, that allows the user to configure his Blink
+- The /donate page, that shows the destination page infos and donation buttons/text field. This page uses the search params set via the root page setup tool to display the Blink and set its metadata (useful in case it isn't displayed as a Blink on the social media where it was posted, or if the viewer hasn't enabled Blinks in his wallet)
+
+## The root page
+
+<img width="545" alt="Capture d’écran 2024-07-11 à 00 06 35" src="https://github.com/silto/soldonate/assets/2432646/471c017e-f307-428f-9b09-d2061d232465">
+
+This panel allows the user the configure his Blink.
+You can set:
+- the destination Sonala address for the donations
+- which donation buttons to display with how much SOL to donate on each one (3 max)
+- enable/disable a "free amount" input where the viewer can enter a SOL amount he wants to donate
+- a fee field, where the user can choose how much of the donation goes to SolDonate (which can be disabled entirely)
+- a redirect link, that will be wrapped with the donation Blink
+
+Once this is all set up, you can click "Create Blink", which will open a modal with 2 options: a Blink URL and an Action URL.
+The simplest way to use it is to copy the Blink URL and share it on social media. But you an also use the Action URL and unfurl it with dial.to for example.
+
+## The Donation page
+
+<img width="537" alt="Capture d’écran 2024-07-11 à 00 10 16" src="https://github.com/silto/soldonate/assets/2432646/3b52c8b7-fd98-443c-b7bb-8fc735a2dfc2">
+
+Based on the settings entered on the root page, the Blink URL should show this page, with its content depending on the redirect URL.
+
+When shared on twitter (an later on other supported social medias), the user wallet should display a Blink with the donation buttons. If the user doesn't have a Solana wallet or its Blink feature isn't enabled, he should see the same thing as if the redirect page was shared directly, but be sent to the donation page if he clicks on the link.
+
+# Tech
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`c3`](https://developers.cloudflare.com/pages/get-started/c3).
 
 ## Getting Started
