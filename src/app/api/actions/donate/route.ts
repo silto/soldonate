@@ -123,17 +123,11 @@ export const POST = async (req: Request) => {
       // note: no additional signers are needed
       // signers: [],
     });
-    console.log("PAYLOAD");
-
-    console.log(payload);
 
     return Response.json(payload, {
       headers: ACTIONS_CORS_HEADERS,
     });
   } catch (err) {
-    console.log("ERROR LOG");
-
-    console.log(err);
     let message = "An unknown error occurred";
     if (typeof err == "string") message = err;
     return Response.json(

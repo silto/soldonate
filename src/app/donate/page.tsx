@@ -25,9 +25,6 @@ export async function generateMetadata(
   },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  console.log("GENERATE METADATA");
-  console.log(searchParams);
-
   const { metadata } = await cachedGetInfosFromURL(
     new URLSearchParams({
       to: searchParams.to || "",
@@ -41,8 +38,6 @@ export async function generateMetadata(
         : "",
     })
   );
-  console.log(metadata);
-
   return metadata;
 }
 
@@ -51,9 +46,6 @@ const DonatePage = async ({
 }: {
   searchParams: Record<string, string | undefined>;
 }) => {
-  console.log("SEARCH PARAMS");
-  console.log(searchParams);
-
   const { payload: action, error } = await cachedGetInfosFromURL(
     new URLSearchParams({
       to: searchParams.to || "",

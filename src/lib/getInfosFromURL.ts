@@ -15,8 +15,6 @@ const getInfosFromSearchParams = async (
   metadata: Metadata;
   error?: string;
 }> => {
-  console.log("GET INFOS");
-
   const metadata = {
     ...defaultMetadata,
   };
@@ -30,8 +28,6 @@ const getInfosFromSearchParams = async (
       fee,
       redirect,
     } = validatedQueryParams(searchParams);
-    console.log("VALIDATED");
-
     let iconUrl = new URL(
       "/social_image.png",
       process.env.NEXT_PUBLIC_BASE_URL
@@ -43,12 +39,8 @@ const getInfosFromSearchParams = async (
         const response = await fetch(redirect, {
           next: { revalidate: 3600 * 24 },
         });
-        console.log("FETCHED");
-
         const html = await response.text();
         const $ = cheerio.load(html, { xmlMode: true });
-        console.log("PARSED");
-
         const twitterImage = $('meta[name="twitter:image"]').attr("content");
         const ogImage = $('meta[property="og:image"]').attr("content");
         const pageTitle = $("title").contents().first().text();
@@ -65,12 +57,12 @@ const getInfosFromSearchParams = async (
           description = pageDescription;
         }
         const twitter: Record<string, unknown> = {};
-        if (pageTitle) {
-          metadata.title = pageTitle;
-        }
-        if (pageDescription) {
-          metadata.description = pageDescription;
-        }
+        // if (pageTitle) {
+        //   metadata.title = pageTitle;
+        // }
+        // if (pageDescription) {
+        //   metadata.description = pageDescription;
+        // }
         const twitterTitle = $('meta[name="twitter:title"]').attr("content");
         if (twitterTitle) {
           twitter.title = twitterTitle;
@@ -239,7 +231,6 @@ const getInfosFromSearchParams = async (
         ] as LinkedAction[],
       },
     };
-    console.log("RETURN");
 
     return { payload, metadata };
   } catch (err) {
