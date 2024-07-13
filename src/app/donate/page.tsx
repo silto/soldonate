@@ -68,7 +68,7 @@ const DonatePage = async ({
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100dvh",
-        bgcolor: "background.paper",
+        bgcolor: "background.default",
       }}
     >
       <Box
@@ -91,10 +91,11 @@ const DonatePage = async ({
             xs: "100%",
             sm: "516px",
           },
-          margin: {
-            xs: 2,
+          px: {
+            xs: 1,
             sm: 0,
           },
+          mb: 2,
         }}
       >
         <Card
@@ -103,6 +104,7 @@ const DonatePage = async ({
             padding: "16px",
             display: "flex",
             flexDirection: "column",
+            backgroundColor: "background.default",
             gap: 2,
           }}
         >

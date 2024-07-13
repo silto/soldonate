@@ -23,6 +23,9 @@ const theme = createTheme({
     error: {
       main: "#ef0e0e",
     },
+    background: {
+      paper: "#1a1a1a",
+    },
   },
   components: {
     MuiOutlinedInput: {

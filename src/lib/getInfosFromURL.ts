@@ -1,8 +1,4 @@
-import {
-  ACTIONS_CORS_HEADERS,
-  ActionGetResponse,
-  LinkedAction,
-} from "@solana/actions";
+import { ActionGetResponse, LinkedAction } from "@solana/actions";
 import validatedQueryParams from "./validateQueryParams";
 import * as cheerio from "cheerio";
 import { Metadata } from "next";

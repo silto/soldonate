@@ -5,20 +5,30 @@ import {
   Box,
   Button,
   Card,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   FormControlLabel,
+  IconButton,
   InputAdornment,
+  Link,
   Modal,
+  Paper,
   Stack,
   Switch,
   TextField,
+  Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import Image from "next/image";
 import logo from "../../public/logo.svg";
 import { ChangeEvent, useState } from "react";
 
 const Home = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openHelpModal, setOpenHelpModal] = useState<boolean>(false);
   const [to, setTo] = useState<string>(process.env.NEXT_PUBLIC_DEFAULT_TO!);
   const [amount1, setAmount1] = useState<string>("0.1");
   const [amount2, setAmount2] = useState<string>("1");
@@ -112,7 +122,7 @@ const Home = () => {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100dvh",
-        bgcolor: "background.paper",
+        bgcolor: "background.default",
       }}
     >
       <Box
@@ -137,7 +147,11 @@ const Home = () => {
             xs: "100%",
             sm: "516px",
           },
-          margin: 2,
+          px: {
+            xs: 1,
+            sm: 0,
+          },
+          mb: 2,
         }}
       >
         <Card
@@ -146,7 +160,9 @@ const Home = () => {
             padding: "16px",
             display: "flex",
             flexDirection: "column",
+            backgroundColor: "background.default",
             gap: 2,
+            mt: 2,
           }}
         >
           <Stack spacing={2}>
@@ -319,23 +335,60 @@ const Home = () => {
             </Button>
           </Stack>
         </Card>
-      </Box>
-      <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
-            position: "absolute" as "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            maxWidth: 600,
-            width: "90%",
-            maxHeight: "80%",
-            bgcolor: "background.paper",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 4,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
           }}
         >
+          <Typography
+            sx={{
+              textTransform: "uppercase",
+              fontWeight: 400,
+              fontSize: 12,
+              cursor: "pointer",
+              color: "grey.400",
+              textDecoration: "underline",
+              "&:hover": {
+                color: "grey.300",
+              },
+            }}
+            onClick={() => setOpenHelpModal(true)}
+          >
+            {"How does this work?"}
+          </Typography>
+        </Box>
+      </Box>
+      <Dialog
+        onClose={() => setOpenModal(false)}
+        aria-labelledby="customized-dialog-title"
+        open={openModal}
+        PaperProps={{
+          sx: {
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            backgroundImage: "none",
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          {"Your Blink is ready !"}
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={() => setOpenModal(false)}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent dividers>
           <Stack spacing={2}>
             <DefaultCopyField
               fullWidth
@@ -345,17 +398,82 @@ const Home = () => {
               type="text"
               value={blinkUrl}
             />
-            <DefaultCopyField
-              fullWidth
-              id="redirect"
-              label={"Action URL"}
-              variant="outlined"
-              type="text"
-              value={actionUrl}
-            />
+            <Typography gutterBottom>
+              {`Post this link to social medias to accept donations. Users that have a Solana wallet that supports Blinks will see your content's preview with donation buttons appearing on their feed.`}
+            </Typography>
           </Stack>
-        </Box>
-      </Modal>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={() => window.open(blinkUrl, "_blank")}>
+            Open Blink
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        onClose={() => setOpenHelpModal(false)}
+        aria-labelledby="customized-dialog-title"
+        open={openHelpModal}
+        PaperProps={{
+          sx: {
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            backgroundImage: "none",
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          {"How does this work ?"}
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={() => setOpenModal(false)}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent dividers>
+          <Typography gutterBottom>
+            {`SolDonate allows you to easily create a donation `}
+            <Link
+              href="https://solana.com/solutions/actions"
+              target="_blank"
+              rel="noopener"
+            >
+              {"Blink"}
+            </Link>
+            {"."}
+          </Typography>
+          <Typography gutterBottom>
+            {`First, enter the Solana address where you want to receive donations in the "Destination Solana address" field.`}
+          </Typography>
+          <Typography gutterBottom>
+            {`Then, configure the donation buttons you want to show. You can show up to 3 buttons, with different SOL amounts.`}
+          </Typography>
+          <Typography gutterBottom>
+            {`You can also choose to show or hide a "free amount" field, where the user can enter any amount he wants to donate.`}
+          </Typography>
+          <Typography gutterBottom>
+            {`The "SolDonate fee" field allows you to set the fee you want to share with us on each donation. This helps us cover server expenses and maintain this service. You can disable it entirely if you want to.`}
+          </Typography>
+          <Typography gutterBottom>
+            {`Finally, you can set a "Redirect URL" that the donation page will point to. When shared on social medias, the preview will show the informations of this destination site, effectively "wrapping" your content in a donation Blink. The donation page will also show your site's informations and allow the user to browse to it.`}
+          </Typography>
+          <Typography gutterBottom>
+            {`Once you're done, click the "Create blink" button, and copy the link to share it wherever you want !`}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={() => setOpenHelpModal(false)}>
+            Got it !
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
