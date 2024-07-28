@@ -1,11 +1,15 @@
 "use client";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useEffect, useState } from "react";
 
-import dynamic from "next/dynamic";
+const WalletButton = () => {
+  const [isSSR, setIsSSR] = useState(true);
 
-const WalletButton = dynamic(
-  async () =>
-    (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
-  { ssr: false }
-);
+  useEffect(() => {
+    setIsSSR(false);
+  }, []);
+
+  return isSSR ? null : <WalletMultiButton />;
+};
 
 export default WalletButton;
