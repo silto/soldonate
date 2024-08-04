@@ -33,9 +33,7 @@ export async function generateMetadata(
       amount3: searchParams.amount3 || "",
       freeAmountEnabled: searchParams.freeAmountEnabled || "",
       fee: searchParams.fee || "",
-      redirect: searchParams.redirect
-        ? decodeURIComponent(searchParams.redirect)
-        : "",
+      redirect: searchParams.redirect || "",
     })
   );
   return metadata;

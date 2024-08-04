@@ -88,7 +88,7 @@ const validatedQueryParams = (
     } catch (error) {
       throw "Invalid input query parameter: redirect";
     }
-    redirect = redirectParam;
+    redirect = decodeURIComponent(redirectParam);
   }
 
   return {
